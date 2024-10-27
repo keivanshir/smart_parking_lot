@@ -2,6 +2,7 @@ package com.example.smartparkinglotmanagementsystem.dto;
 
 
 import com.example.smartparkinglotmanagementsystem.enums.VehicleType;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class VehicleDto {
 
     private Long id;
