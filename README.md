@@ -27,4 +27,5 @@ class ```ReportingServiceTest``` and  ```ParkingManagementServiceTest```:
 these classes must be called after previous classes are used since they fill the needed data otherwise the test will fail
 
 ## Documentation (Swagger)
-documentation is available at `http://localhost:8080/swagger/swagger-ui.html`
+> [!NOTE]
+> documentation is available at:  `http://localhost:8080/swagger/swagger-ui.html`
