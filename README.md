@@ -7,8 +7,9 @@ since there is priorities in running tests, they should be run manually using ID
 ```mvn clean install -DskipTests```
 
 ## how to run project
-you can use following code
+you can use following code after building
 ```mvn spring-boot:run```
+or run `Dockerfile` inside intelliJ
 
 ## how to run tests
 each test has it's own how-to and should be run by priorities
