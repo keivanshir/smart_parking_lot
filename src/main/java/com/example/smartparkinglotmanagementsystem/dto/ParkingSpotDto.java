@@ -1,6 +1,7 @@
 package com.example.smartparkinglotmanagementsystem.dto;
 
 import com.example.smartparkinglotmanagementsystem.enums.SpotSize;
+import com.example.smartparkinglotmanagementsystem.enums.SpotStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,4 +21,6 @@ public class ParkingSpotDto {
     private Boolean isOccupied;
 
     private VehicleDto currentVehicle;
+
+    private SpotStatus spotStatus;
 }

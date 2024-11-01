@@ -3,6 +3,7 @@ package com.example.smartparkinglotmanagementsystem.service.implementation;
 import com.example.smartparkinglotmanagementsystem.dto.ParkingSpotDto;
 import com.example.smartparkinglotmanagementsystem.dto.Response;
 import com.example.smartparkinglotmanagementsystem.entity.ParkingSpot;
+import com.example.smartparkinglotmanagementsystem.enums.SpotStatus;
 import com.example.smartparkinglotmanagementsystem.exception.NotFoundException;
 import com.example.smartparkinglotmanagementsystem.mapper.EntityDtoMapper;
 import com.example.smartparkinglotmanagementsystem.repository.ParkingSpotRepository;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 public class ParkingSpotServiceImpl implements ParkingSpotService {
     private ParkingSpotRepository parkingSpotRepository;
     private EntityDtoMapper entityDtoMapper;
+    private ParkingWebsocketServiceImpl parkingWebSocketService;
+
 
     @Override
     public Response freeUpParkingSpot(Long id) {
@@ -28,6 +31,12 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
         parkingSpot.setCurrentVehicle(null);
         parkingSpotRepository.save(parkingSpot);
         log.info("parking spot " + parkingSpot.getSpotId() + " freed");
+
+        // web socket to notify all connected clients
+        ParkingSpotDto dtoForNotify = entityDtoMapper.mapParkingSpotToDtoBasic(parkingSpot);
+        dtoForNotify.setSpotStatus(SpotStatus.EMPTY);
+        parkingWebSocketService.sendOccupancyUpdate(dtoForNotify);
+        log.info("connected web socket notified");
 
         return Response.builder()
                 .status(200)
@@ -42,8 +51,12 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
         parkingSpot.setSpotSize(parkingSpotDto.getSpotSize());
 
         parkingSpotRepository.save(parkingSpot);
-
         log.info("parking spot added successfully");
+
+        ParkingSpotDto dtoForNotify = entityDtoMapper.mapParkingSpotToDtoBasic(parkingSpot);
+        dtoForNotify.setSpotStatus(SpotStatus.EMPTY);
+        parkingWebSocketService.sendOccupancyUpdate(dtoForNotify);
+        log.info("connected web socket notified");
 
         return Response.builder()
                 .parkingSpot(entityDtoMapper.mapParkingSpotToDtoBasic(parkingSpot))
@@ -56,6 +69,11 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
                 .orElseThrow(() -> new NotFoundException("Parking spot not found for id: " + id));
         parkingSpotRepository.delete(parkingSpot);
         log.info("parking spot deleted successfully");
+
+        ParkingSpotDto dtoForNotify = entityDtoMapper.mapParkingSpotToDtoBasic(parkingSpot);
+        dtoForNotify.setSpotStatus(SpotStatus.REMOVED);
+        parkingWebSocketService.sendOccupancyUpdate(dtoForNotify);
+        log.info("connected web socket notified");
 
         return Response.builder()
                 .status(200)

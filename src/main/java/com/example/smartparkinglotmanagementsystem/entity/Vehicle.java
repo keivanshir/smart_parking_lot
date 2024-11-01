@@ -30,6 +30,6 @@ public class Vehicle {
     private LocalDateTime exitTime;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "spot_id")
+    @JoinColumn(name = "assigned_spot_id")
     private ParkingSpot assignedSpot;
 }

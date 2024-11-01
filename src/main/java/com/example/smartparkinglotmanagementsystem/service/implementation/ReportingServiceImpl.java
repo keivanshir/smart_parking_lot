@@ -11,6 +11,7 @@ import com.example.smartparkinglotmanagementsystem.mapper.EntityDtoMapper;
 import com.example.smartparkinglotmanagementsystem.repository.RevenueRepository;
 import com.example.smartparkinglotmanagementsystem.repository.VehicleRepository;
 import com.example.smartparkinglotmanagementsystem.service.ReportingService;
+import com.example.smartparkinglotmanagementsystem.specification.ReportingSpecification;
 import com.example.smartparkinglotmanagementsystem.specification.RevenueSpecification;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -34,9 +36,7 @@ public class ReportingServiceImpl implements ReportingService {
 
     @Override
     public Response generateReportOfAllParkedVehicles(Pageable pageable) {
-//        Specification<Vehicle> spec = Specification.where(VehicleSpecification.isVehicleParked());
-
-        Page<Vehicle> vehiclePage = vehicleRepository.findAll(pageable);
+        Page<Vehicle> vehiclePage = vehicleRepository.findAll(ReportingSpecification.parkedCars(), pageable);
 
         if (vehiclePage.isEmpty())
             throw new NotFoundException("No Parked vehicle is found");
@@ -44,9 +44,7 @@ public class ReportingServiceImpl implements ReportingService {
         log.info("generating report for parked vehicles: ");
         List<VehicleDto> vehicleDtoList = vehiclePage.getContent()
                 .stream()
-                .filter(vehicle -> vehicle.getAssignedSpot().getIsOccupied()
-                        && vehicle.getAssignedSpot().getCurrentVehicle() != null)
-                .map(entityDtoMapper::mapToVehicleWithParkingSpot)
+                .map(entityDtoMapper::mapToVehicleDtoWithParkingSpot)
                 .toList();
 
         log.info(vehicleDtoList.toString());
@@ -55,59 +53,64 @@ public class ReportingServiceImpl implements ReportingService {
                 .status(200)
                 .message("All Parked vehicles")
                 .vehicleDtoList(vehicleDtoList)
+                .totalElement(vehiclePage.getTotalElements())
+                .totalPage(vehiclePage.getTotalPages())
                 .build();
     }
 
     @Override
     public Response generateRevenueReport(Frequency frequency, Pageable pageable) {
-        List<RevenueDto> revenueDtoList;
+        List<RevenueDto> revenueDtoList = new ArrayList<>();
+
+        Response.ResponseBuilder responseBuilder = Response.builder()
+                .status(200)
+                .message("Revenues with " + frequency.name() + " frequency");
+
         switch (frequency) {
             case DAILY -> {
                 log.info("generating report for DAILY revenues");
-                revenueDtoList = dailyReport(pageable);
+                revenueDtoList.addAll(dailyReport(pageable, responseBuilder));
             }
             case WEEKLY -> {
                 log.info("generating report for WEEKLY revenues");
-                revenueDtoList = weeklyReport(pageable);
+                revenueDtoList.addAll(weeklyReport(pageable, responseBuilder));
             }
             case MONTHLY -> {
                 log.info("generating report for MONTHLY revenues");
-                revenueDtoList = monthlyReport(pageable);
+                revenueDtoList.addAll(monthlyReport(pageable, responseBuilder));
             }
-            default -> revenueDtoList = dailyReport(pageable);
+            default -> revenueDtoList.addAll(dailyReport(pageable, responseBuilder));
         }
-        return Response.builder()
-                .status(200)
-                .message("Revenues with " + frequency.name() + " frequency")
+        return responseBuilder
                 .revenueDtoList(revenueDtoList)
                 .build();
     }
 
-    private List<RevenueDto> monthlyReport(Pageable pageable) {
+    private List<RevenueDto> monthlyReport(Pageable pageable, Response.ResponseBuilder builder) {
         Specification<Revenue> spec = Specification
                 .where(RevenueSpecification
                         .createdBetween(LocalDateTime.now().minusMonths(1), LocalDateTime.now()));
 
-        return getRevenueDtos(pageable, spec);
+        return getRevenueDtos(pageable, spec, builder);
     }
 
-    private List<RevenueDto> weeklyReport(Pageable pageable) {
+    private List<RevenueDto> weeklyReport(Pageable pageable,Response.ResponseBuilder builder) {
         Specification<Revenue> spec = Specification
                 .where(RevenueSpecification
                         .createdBetween(LocalDateTime.now().minusWeeks(1), LocalDateTime.now()));
 
-        return getRevenueDtos(pageable, spec);
+        return getRevenueDtos(pageable, spec, builder);
     }
 
-    private List<RevenueDto> dailyReport(Pageable pageable) {
+    private List<RevenueDto> dailyReport(Pageable pageable, Response.ResponseBuilder builder) {
         Specification<Revenue> spec = Specification
                 .where(RevenueSpecification
                         .createdBetween(LocalDateTime.now().minusDays(1), LocalDateTime.now()));
 
-        return getRevenueDtos(pageable, spec);
+        return getRevenueDtos(pageable, spec, builder);
     }
 
-    private List<RevenueDto> getRevenueDtos(Pageable pageable, Specification<Revenue> spec) {
+    private List<RevenueDto> getRevenueDtos(Pageable pageable, Specification<Revenue> spec, Response.ResponseBuilder builder) {
         Page<Revenue> revenuePage = revenueRepository.findAll(spec, pageable);
 
         if (revenuePage.isEmpty())
@@ -117,6 +120,9 @@ public class ReportingServiceImpl implements ReportingService {
                 .stream()
                 .map(entityDtoMapper::mapToRevenueDto)
                 .toList();
+
+        builder.totalElement(revenuePage.getTotalElements())
+                .totalPage(revenuePage.getTotalPages());
 
         log.info("revenues: " + revenueDtoList);
 

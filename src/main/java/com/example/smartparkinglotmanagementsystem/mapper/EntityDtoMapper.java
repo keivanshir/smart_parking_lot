@@ -25,15 +25,7 @@ public class EntityDtoMapper {
         return userDto;
     }
 
-    public User mapToUserBasic(UserDto userDto){
-        User user = new User();
-        user.setId(userDto.getId());
-        user.setEmail(userDto.getEmail());
-        user.setRole(UserRole.valueOf(userDto.getRole()));
-        user.setName(userDto.getName());
 
-        return user;
-    }
 
     public ParkingSpotDto mapParkingSpotToDtoBasic(ParkingSpot parkingSpot){
         ParkingSpotDto parkingSpotDto = new ParkingSpotDto();
@@ -64,13 +56,16 @@ public class EntityDtoMapper {
         return vehicleDto;
     }
 
-    public VehicleDto mapToVehicleWithParkingSpot(Vehicle vehicle){
+    public VehicleDto mapToVehicleDtoWithParkingSpot(Vehicle vehicle){
         VehicleDto vehicleDto = mapToVehicleDtoBasic(vehicle);
         if (vehicle.getAssignedSpot() != null){
-            vehicleDto.setAssignedSpot(mapParkingSpotToDtoBasic(vehicle.getAssignedSpot()));
+            ParkingSpotDto parkingSpotDto = mapParkingSpotToDtoBasic(vehicle.getAssignedSpot());
+            vehicleDto.setAssignedSpot(parkingSpotDto);
         }
         return vehicleDto;
     }
+
+
 
     public RevenueDto mapToRevenueDto(Revenue revenue){
         RevenueDto revenueDto = new RevenueDto();
@@ -78,6 +73,9 @@ public class EntityDtoMapper {
         revenueDto.setId(revenue.getId());
         if (revenue.getVehicle() != null){
             revenueDto.setVehicle(mapToVehicleDtoBasic(revenue.getVehicle()));
+        }
+        if (revenue.getAssignedSpot() != null){
+            revenueDto.setAssignedSpot(mapParkingSpotToDtoBasic(revenue.getAssignedSpot()));
         }
         return revenueDto;
     }

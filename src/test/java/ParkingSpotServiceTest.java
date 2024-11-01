@@ -5,6 +5,7 @@ import com.example.smartparkinglotmanagementsystem.mapper.EntityDtoMapper;
 import com.example.smartparkinglotmanagementsystem.repository.ParkingSpotRepository;
 import com.example.smartparkinglotmanagementsystem.service.ParkingSpotService;
 import com.example.smartparkinglotmanagementsystem.service.implementation.ParkingSpotServiceImpl;
+import com.example.smartparkinglotmanagementsystem.service.implementation.ParkingWebsocketServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
@@ -53,10 +53,15 @@ public class ParkingSpotServiceTest {
     @Autowired
     EntityDtoMapper entityDtoMapper;
 
+    @Autowired
+    private ParkingWebsocketServiceImpl parkingWebSocketService;
+
     @BeforeEach
     public void init() throws Exception {
 
-        parkingSpotService = new ParkingSpotServiceImpl(parkingSpotRepository, entityDtoMapper);
+        parkingSpotService = new ParkingSpotServiceImpl(parkingSpotRepository,
+                entityDtoMapper,
+                parkingWebSocketService);
 
         Map<String, String> userMap = new HashMap<>();
         userMap.put("email", "admin@gmail.com");
@@ -102,7 +107,7 @@ public class ParkingSpotServiceTest {
 
         String jsonResult = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(userMap);
 
-        MvcResult result = mockMvc.perform(post("/parkingSpot/add")
+        mockMvc.perform(post("/parkingSpot/add")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON_UTF8)
                         .content(jsonResult))

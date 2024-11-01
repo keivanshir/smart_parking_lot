@@ -23,7 +23,7 @@ public class ParkingManagementController {
     @GetMapping("/parkingSpotsStat")
     public ResponseEntity<Response> viewRealtimeStatus(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue= "5") int size){
+            @RequestParam(defaultValue= "1000") int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         return new ResponseEntity<>(parkingManagementService.viewRealtimeStatus(pageable), HttpStatus.OK);
     }
@@ -31,7 +31,7 @@ public class ParkingManagementController {
     @GetMapping("/occupiedParkingSpots")
     public ResponseEntity<Response> viewOccupancyRate(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue= "5") int size){
+            @RequestParam(defaultValue= "1000") int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         return new ResponseEntity<>(parkingManagementService.viewOccupancyRate(pageable), HttpStatus.OK);
     }

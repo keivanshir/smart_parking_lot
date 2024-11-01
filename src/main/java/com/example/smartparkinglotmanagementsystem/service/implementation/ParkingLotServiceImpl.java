@@ -1,10 +1,12 @@
 package com.example.smartparkinglotmanagementsystem.service.implementation;
 
+import com.example.smartparkinglotmanagementsystem.dto.ParkingSpotDto;
 import com.example.smartparkinglotmanagementsystem.dto.Response;
 import com.example.smartparkinglotmanagementsystem.dto.VehicleDto;
 import com.example.smartparkinglotmanagementsystem.entity.ParkingSpot;
 import com.example.smartparkinglotmanagementsystem.entity.Revenue;
 import com.example.smartparkinglotmanagementsystem.entity.Vehicle;
+import com.example.smartparkinglotmanagementsystem.enums.SpotStatus;
 import com.example.smartparkinglotmanagementsystem.exception.NotFoundException;
 import com.example.smartparkinglotmanagementsystem.factory.VehicleFactory;
 import com.example.smartparkinglotmanagementsystem.mapper.EntityDtoMapper;
@@ -33,6 +35,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     private final ParkingSpotService parkingSpotService;
     private final RevenueRepository revenueRepository;
     private final EntityDtoMapper entityDtoMapper;
+    private final ParkingWebsocketServiceImpl parkingWebsocketService;
 
     @Override
     @Transactional
@@ -44,14 +47,21 @@ public class ParkingLotServiceImpl implements ParkingLotService {
         vehicle.setEntryTime(LocalDateTime.now());
         List<ParkingSpot> parkingSpotList = parkingSpotRepository.findAll();
 
-        boolean isAssigned = VehicleFactory.assignSpot(vehicle, parkingSpotList);
+        ParkingSpot parkingSpot = VehicleFactory.assignSpot(vehicle, parkingSpotList);
 
-        String message = isAssigned ? "Parking spot "+ vehicle.getAssignedSpot().getSpotId() +" has assigned to vehicle "
+        String message = parkingSpot != null ? "Parking spot "+ parkingSpot.getSpotId() +" has assigned to vehicle "
                 + vehicle.getLicensePlate() : "No Parking spot available";
-
-        vehicleRepository.save(vehicle);
+        if (parkingSpot != null)
+            vehicleRepository.save(vehicle);
+        else
+            throw new NotFoundException(message);
 
         log.info("Vehicle with " + vehicle.getLicensePlate() + " registered at time " + vehicle.getEntryTime());
+
+        ParkingSpotDto dtoForNotify = entityDtoMapper.mapParkingSpotToDtoWithVehicle(parkingSpot);
+        dtoForNotify.setSpotStatus(SpotStatus.FULL);
+        parkingWebsocketService.sendOccupancyUpdate(dtoForNotify);
+        log.info("connected web socket notified");
 
         return Response.builder()
                 .status(201)
@@ -67,23 +77,27 @@ public class ParkingLotServiceImpl implements ParkingLotService {
                 .orElseThrow(() -> new NotFoundException("Vehicle not found with id " + id));
 
         vehicle.setExitTime(LocalDateTime.now());
-        vehicleRepository.save(vehicle);
-
-        log.info("Vehicle with " + vehicle.getLicensePlate() + " exited at time " + vehicle.getExitTime());
+        vehicle.setAssignedSpot(null);
 
         FeeCalculationStrategy calculationStrategy = FeeStrategy.getFeeStrategy(vehicle.getVehicleType());
         Long fee = calculationStrategy.calculateFee(vehicle.getEntryTime(), vehicle.getExitTime());
 
 
+
+        ParkingSpot parkingSpot = parkingSpotRepository.findParkingSpotByCurrentVehicle(vehicle)
+                .orElseThrow(() -> new NotFoundException("ParkingSpot not found with vehicle id " + id));
         Revenue revenue = new Revenue();
         revenue.setVehicle(vehicle);
         revenue.setFee(fee);
+        revenue.setAssignedSpot(parkingSpot);
         revenueRepository.save(revenue);
         log.info("revenue made: " + revenue.getFee());
 
-        Response response = parkingSpotService.freeUpParkingSpot(vehicle.getAssignedSpot().getId());
-
+        Response response = parkingSpotService.freeUpParkingSpot(parkingSpot.getId());
         response.setRevenueDto(entityDtoMapper.mapToRevenueDto(revenue));
+        vehicleRepository.save(vehicle);
+
+        log.info("Vehicle with " + vehicle.getLicensePlate() + " exited at time " + vehicle.getExitTime());
 
         return response;
     }

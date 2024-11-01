@@ -7,6 +7,7 @@ import com.example.smartparkinglotmanagementsystem.exception.NotFoundException;
 import com.example.smartparkinglotmanagementsystem.mapper.EntityDtoMapper;
 import com.example.smartparkinglotmanagementsystem.repository.ParkingSpotRepository;
 import com.example.smartparkinglotmanagementsystem.service.ParkingManagementService;
+import com.example.smartparkinglotmanagementsystem.specification.ManagementSpecification;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -38,21 +39,21 @@ public class ParkingManagementServiceImpl implements ParkingManagementService {
                 .status(200)
                 .message("All parking spots")
                 .parkingSpotDtoList(parkingSpotDtoList)
+                .totalPage(parkingSpotPage.getTotalPages())
+                .totalElement(parkingSpotPage.getTotalElements())
                 .build();
     }
 
     @Override
     public Response viewOccupancyRate(Pageable pageable) {
+        Page<ParkingSpot> parkingSpotPage = parkingSpotRepository.findAll(ManagementSpecification.isOccupiedSpot(),pageable);
 
-        Page<ParkingSpot> parkingSpotPage = parkingSpotRepository.findAll(pageable);
         if (parkingSpotPage.isEmpty())
             throw new NotFoundException("All Parking spots are vacant");
 
         List<ParkingSpotDto> parkingSpotDtoList = parkingSpotPage
                 .getContent()
                 .stream()
-                .filter(parkingSpot -> parkingSpot.getIsOccupied()
-                        && parkingSpot.getCurrentVehicle() != null)
                 .map(entityDtoMapper::mapParkingSpotToDtoWithVehicle)
                 .collect(Collectors.toList());
 

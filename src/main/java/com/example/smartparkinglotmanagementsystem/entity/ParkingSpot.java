@@ -17,7 +17,7 @@ import lombok.Setter;
 public class ParkingSpot {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true)
@@ -29,7 +29,7 @@ public class ParkingSpot {
     @Column(name = "is_occupied")
     private Boolean isOccupied = false;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "vehicle_id")
     private Vehicle currentVehicle;
 

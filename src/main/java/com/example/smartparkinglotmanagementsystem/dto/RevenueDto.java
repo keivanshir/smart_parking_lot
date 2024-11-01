@@ -13,4 +13,5 @@ public class RevenueDto {
     private Long id;
     private Long fee;
     private VehicleDto vehicle;
+    private ParkingSpotDto assignedSpot;
 }

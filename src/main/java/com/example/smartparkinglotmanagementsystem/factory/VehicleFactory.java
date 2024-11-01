@@ -9,16 +9,16 @@ import java.util.List;
 
 public class VehicleFactory {
 
-    public static boolean assignSpot(Vehicle vehicle, List<ParkingSpot> spots) {
+    public static ParkingSpot assignSpot(Vehicle vehicle, List<ParkingSpot> spots) {
         for (ParkingSpot spot : spots) {
             if (!spot.getIsOccupied() && isSpotSuitable(vehicle.getVehicleType(), spot.getSpotSize())) {
                 vehicle.setAssignedSpot(spot);
                 spot.setCurrentVehicle(vehicle);
                 spot.setIsOccupied(true);
-                return true;
+                return spot;
             }
         }
-        return false;
+        return null;
     }
 
     private static boolean isSpotSuitable(VehicleType vehicleType, SpotSize spotSize) {
