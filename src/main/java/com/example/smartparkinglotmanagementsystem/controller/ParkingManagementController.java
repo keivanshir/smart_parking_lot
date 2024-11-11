@@ -1,6 +1,5 @@
 package com.example.smartparkinglotmanagementsystem.controller;
 
-import com.example.smartparkinglotmanagementsystem.dto.ParkingSpotDto;
 import com.example.smartparkinglotmanagementsystem.dto.Response;
 import com.example.smartparkinglotmanagementsystem.entity.ParkingSpot;
 import com.example.smartparkinglotmanagementsystem.repository.ParkingSpotRepository;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/management")
