@@ -4,6 +4,7 @@ import com.example.smartparkinglotmanagementsystem.dto.Response;
 import com.example.smartparkinglotmanagementsystem.entity.ParkingSpot;
 import com.example.smartparkinglotmanagementsystem.repository.ParkingSpotRepository;
 import com.example.smartparkinglotmanagementsystem.service.ParkingManagementService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
@@ -33,6 +34,7 @@ public class ParkingManagementController {
                     @ApiResponse(responseCode = "200", description = "shows all parking spots")
             }
     )
+    @RateLimiter(name = "parkingSystem")
     public ResponseEntity<Response> viewRealtimeStatus(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue= "1000") int size){
@@ -55,6 +57,7 @@ public class ParkingManagementController {
                     @ApiResponse(responseCode = "404", description = "all Parking spots are vacant")
             }
     )
+    @RateLimiter(name = "parkingSystem")
     public ResponseEntity<Response> viewOccupancyRate(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue= "1000") int size){

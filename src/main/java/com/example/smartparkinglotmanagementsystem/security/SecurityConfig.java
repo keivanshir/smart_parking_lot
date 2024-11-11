@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/ws/**","/auth/**", "/h2-console/**", "/v3/**", "/swagger/**").permitAll()
+                        .requestMatchers("/actuator/health/**", "/ws/**","/auth/**", "/h2-console/**", "/v3/**", "/swagger/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

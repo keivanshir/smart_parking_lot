@@ -3,6 +3,7 @@ package com.example.smartparkinglotmanagementsystem.controller;
 import com.example.smartparkinglotmanagementsystem.dto.Response;
 import com.example.smartparkinglotmanagementsystem.enums.Frequency;
 import com.example.smartparkinglotmanagementsystem.service.ReportingService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ public class ReportingController {
                     @ApiResponse(responseCode = "200", description = "shows all parked vehicles"),
                     @ApiResponse(responseCode = "404", description = "no parked vehicle found")
             })
+    @RateLimiter(name = "parkingSystem")
     public ResponseEntity<Response> generateReportOfAllParkedVehicles(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "1000") int size
@@ -43,6 +45,7 @@ public class ReportingController {
                     @ApiResponse(responseCode = "200", description = "shows revenue of vehicles parked in the past"),
                     @ApiResponse(responseCode = "404", description = "revenues not found")
             })
+    @RateLimiter(name = "parkingSystem")
     public ResponseEntity<Response> getRevenueByFrequency(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "1000") int size,

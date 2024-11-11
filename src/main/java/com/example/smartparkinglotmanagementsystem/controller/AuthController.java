@@ -4,6 +4,7 @@ import com.example.smartparkinglotmanagementsystem.dto.LoginRequest;
 import com.example.smartparkinglotmanagementsystem.dto.Response;
 import com.example.smartparkinglotmanagementsystem.dto.UserDto;
 import com.example.smartparkinglotmanagementsystem.service.UserService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class AuthController {
                     @ApiResponse(responseCode = "200", description = "User registered successfully")
             }
     )
+    @RateLimiter(name = "parkingSystem")
     public ResponseEntity<Response> registerUser(@RequestBody UserDto registrationRequest){
         return new ResponseEntity<>(userService.registerUser(registrationRequest), HttpStatus.CREATED);
     }
@@ -38,6 +40,7 @@ public class AuthController {
                     @ApiResponse(responseCode = "404", description = "User not found")
             }
     )
+    @RateLimiter(name = "parkingSystem")
     public ResponseEntity<Response> loginUser(@RequestBody LoginRequest loginRequest){
         return ResponseEntity.ok(userService.loginUser(loginRequest));
     }

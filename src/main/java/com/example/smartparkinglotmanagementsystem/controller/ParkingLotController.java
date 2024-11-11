@@ -3,6 +3,7 @@ package com.example.smartparkinglotmanagementsystem.controller;
 import com.example.smartparkinglotmanagementsystem.dto.Response;
 import com.example.smartparkinglotmanagementsystem.dto.VehicleDto;
 import com.example.smartparkinglotmanagementsystem.service.implementation.ParkingLotServiceImpl;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class ParkingLotController {
                     @ApiResponse(responseCode = "404", description = "parking spot not found")
             }
     )
+    @RateLimiter(name = "parkingSystem")
     public ResponseEntity<Response> registerVehicle(@RequestBody VehicleDto vehicleDto){
         return new ResponseEntity<>(parkingLotService.registerVehicle(vehicleDto), HttpStatus.CREATED);
     }
@@ -35,6 +37,7 @@ public class ParkingLotController {
                     @ApiResponse(responseCode = "404", description = "Parking spot or vehicle not found")
             }
     )
+    @RateLimiter(name = "parkingSystem")
     public ResponseEntity<Response> registerVehicleExit(@PathVariable Long id){
         return new ResponseEntity<>(parkingLotService.registerVehicleExit(id), HttpStatus.OK);
     }
