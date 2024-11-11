@@ -141,9 +141,7 @@ public class ParkingSpotServiceTest {
     @Test
     @Order(3)
     public void freeUpParkingSpotTest(){
-
-        Response response = parkingSpotService.freeUpParkingSpot(702L);
-        assertThat(response).isNotNull();
+        assertThat(parkingSpotService.freeUpParkingSpot(702L)).isNotNull();
 
     }
 }

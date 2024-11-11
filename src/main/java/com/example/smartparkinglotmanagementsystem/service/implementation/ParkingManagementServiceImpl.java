@@ -10,6 +10,7 @@ import com.example.smartparkinglotmanagementsystem.service.ParkingManagementServ
 import com.example.smartparkinglotmanagementsystem.specification.ManagementSpecification;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,8 +27,9 @@ public class ParkingManagementServiceImpl implements ParkingManagementService {
     private EntityDtoMapper entityDtoMapper;
 
     @Override
-    public Response viewRealtimeStatus(Pageable pageable) {
-        Page<ParkingSpot> parkingSpotPage = parkingSpotRepository.findAll(pageable);
+    @Cacheable(cacheNames = "getAllParkingSpots", key = "'allParkingSpots'")
+    public List<ParkingSpotDto> viewRealtimeStatus(Page<ParkingSpot> parkingSpotPage) {
+
         List<ParkingSpotDto> parkingSpotDtoList = parkingSpotPage.getContent()
                 .stream()
                 .map(entityDtoMapper::mapParkingSpotToDtoWithVehicle)
@@ -35,13 +37,7 @@ public class ParkingManagementServiceImpl implements ParkingManagementService {
 
         log.info("viewing all parking spots: " + parkingSpotDtoList);
 
-        return Response.builder()
-                .status(200)
-                .message("All parking spots")
-                .parkingSpotDtoList(parkingSpotDtoList)
-                .totalPage(parkingSpotPage.getTotalPages())
-                .totalElement(parkingSpotPage.getTotalElements())
-                .build();
+        return parkingSpotDtoList;
     }
 
     @Override

@@ -93,12 +93,18 @@ public class ParkingLotServiceImpl implements ParkingLotService {
         revenueRepository.save(revenue);
         log.info("revenue made: " + revenue.getFee());
 
-        Response response = parkingSpotService.freeUpParkingSpot(parkingSpot.getId());
-        response.setRevenueDto(entityDtoMapper.mapToRevenueDto(revenue));
+        Response freedParkingSpotResponse = Response.builder()
+                .status(200)
+                .parkingSpot(parkingSpotService.freeUpParkingSpot(parkingSpot.getId()))
+                .message("Parking spot " + parkingSpot.getSpotId() + " freed up successfully")
+                .build();
+
+
+        freedParkingSpotResponse.setRevenueDto(entityDtoMapper.mapToRevenueDto(revenue));
         vehicleRepository.save(vehicle);
 
         log.info("Vehicle with " + vehicle.getLicensePlate() + " exited at time " + vehicle.getExitTime());
 
-        return response;
+        return freedParkingSpotResponse;
     }
 }

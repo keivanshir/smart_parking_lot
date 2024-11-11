@@ -3,6 +3,8 @@ package com.example.smartparkinglotmanagementsystem.controller;
 import com.example.smartparkinglotmanagementsystem.dto.Response;
 import com.example.smartparkinglotmanagementsystem.enums.Frequency;
 import com.example.smartparkinglotmanagementsystem.service.ReportingService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +24,11 @@ public class ReportingController {
     private final ReportingService reportingService;
 
     @GetMapping("/parkedVehicles")
+    @Operation(summary = "generates report of all parked vehicles",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "shows all parked vehicles"),
+                    @ApiResponse(responseCode = "404", description = "no parked vehicle found")
+            })
     public ResponseEntity<Response> generateReportOfAllParkedVehicles(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "1000") int size
@@ -31,6 +38,11 @@ public class ReportingController {
     }
 
     @GetMapping("/revenues")
+    @Operation(summary = "generates revenue by frequency",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "shows revenue of vehicles parked in the past"),
+                    @ApiResponse(responseCode = "404", description = "revenues not found")
+            })
     public ResponseEntity<Response> getRevenueByFrequency(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "1000") int size,

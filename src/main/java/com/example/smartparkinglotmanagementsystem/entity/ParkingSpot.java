@@ -8,13 +8,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "parking_spots")
-public class ParkingSpot {
+public class ParkingSpot implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

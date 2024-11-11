@@ -7,11 +7,13 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @RequiredArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ParkingSpotDto {
+public class ParkingSpotDto implements Serializable {
     private Long id;
 
     private String spotId;

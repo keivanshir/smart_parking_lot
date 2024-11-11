@@ -4,9 +4,9 @@ import com.example.smartparkinglotmanagementsystem.dto.ParkingSpotDto;
 import com.example.smartparkinglotmanagementsystem.dto.Response;
 
 public interface ParkingSpotService {
-    Response freeUpParkingSpot(Long id);
+    ParkingSpotDto freeUpParkingSpot(Long id);
 
-    Response addParkingSpot(ParkingSpotDto parkingSpotDto);
+    ParkingSpotDto addParkingSpot(ParkingSpotDto parkingSpotDto);
     Response deleteParkingSpot(Long id);
 
 }
