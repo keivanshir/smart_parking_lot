@@ -2,6 +2,7 @@ import com.example.smartparkinglotmanagementsystem.SmartParkingLotManagementSyst
 import com.example.smartparkinglotmanagementsystem.dto.Response;
 import com.example.smartparkinglotmanagementsystem.enums.SpotSize;
 import com.example.smartparkinglotmanagementsystem.mapper.EntityDtoMapper;
+import com.example.smartparkinglotmanagementsystem.repository.AuditRepository;
 import com.example.smartparkinglotmanagementsystem.repository.ParkingSpotRepository;
 import com.example.smartparkinglotmanagementsystem.service.ParkingSpotService;
 import com.example.smartparkinglotmanagementsystem.service.implementation.ParkingSpotServiceImpl;
@@ -56,12 +57,16 @@ public class ParkingSpotServiceTest {
     @Autowired
     private ParkingWebsocketServiceImpl parkingWebSocketService;
 
+    @Autowired
+    private AuditRepository auditRepository;
+
     @BeforeEach
     public void init() throws Exception {
 
         parkingSpotService = new ParkingSpotServiceImpl(parkingSpotRepository,
                 entityDtoMapper,
-                parkingWebSocketService);
+                parkingWebSocketService,
+                auditRepository);
 
         Map<String, String> userMap = new HashMap<>();
         userMap.put("email", "admin@gmail.com");

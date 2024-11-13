@@ -3,11 +3,7 @@ package com.example.smartparkinglotmanagementsystem.mapper;
 import com.example.smartparkinglotmanagementsystem.dto.ParkingSpotDto;
 import com.example.smartparkinglotmanagementsystem.dto.RevenueDto;
 import com.example.smartparkinglotmanagementsystem.dto.VehicleDto;
-import com.example.smartparkinglotmanagementsystem.entity.ParkingSpot;
-import com.example.smartparkinglotmanagementsystem.entity.Revenue;
-import com.example.smartparkinglotmanagementsystem.entity.User;
-import com.example.smartparkinglotmanagementsystem.entity.Vehicle;
-import com.example.smartparkinglotmanagementsystem.enums.UserRole;
+import com.example.smartparkinglotmanagementsystem.entity.*;
 import org.springframework.stereotype.Component;
 import com.example.smartparkinglotmanagementsystem.dto.UserDto;
 

@@ -3,11 +3,13 @@ package com.example.smartparkinglotmanagementsystem.service.implementation;
 import com.example.smartparkinglotmanagementsystem.dto.LoginRequest;
 import com.example.smartparkinglotmanagementsystem.dto.Response;
 import com.example.smartparkinglotmanagementsystem.dto.UserDto;
+import com.example.smartparkinglotmanagementsystem.entity.AuditLog;
 import com.example.smartparkinglotmanagementsystem.entity.User;
 import com.example.smartparkinglotmanagementsystem.enums.UserRole;
 import com.example.smartparkinglotmanagementsystem.exception.InvalidCredentialException;
 import com.example.smartparkinglotmanagementsystem.exception.NotFoundException;
 import com.example.smartparkinglotmanagementsystem.mapper.EntityDtoMapper;
+import com.example.smartparkinglotmanagementsystem.repository.AuditRepository;
 import com.example.smartparkinglotmanagementsystem.repository.UserRepository;
 import com.example.smartparkinglotmanagementsystem.security.JwtUtils;
 import com.example.smartparkinglotmanagementsystem.service.UserService;
@@ -25,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final EntityDtoMapper entityDtoMapper;
+    private final AuditRepository auditRepository;
 
     @Override
     public Response registerUser(UserDto registrationRequest) {
@@ -43,6 +46,14 @@ public class UserServiceImpl implements UserService {
                 .build();
         User savedUser = userRepo.save(user);
         log.info("user: " + user.getName() + " saved with role: " +user.getRole().name());
+
+        AuditLog auditLog = new AuditLog();
+        auditLog.setAction("INSERT - User (name: "+ user.getName()
+                + ", email: " + user.getEmail()
+                + ", password: " + user.getPassword()
+                + ", role: " + user.getRole().name()
+                + ")");
+        auditRepository.save(auditLog);
 
 
         UserDto userDto = entityDtoMapper.mapUserToDtoBasic(savedUser);
@@ -63,6 +74,14 @@ public class UserServiceImpl implements UserService {
         String token = jwtUtils.generateToken(user);
         log.info("user: " + user.getName() + " logged in with role: " +user.getRole().name());
         log.info("token: " + token);
+
+        AuditLog auditLog = new AuditLog();
+        auditLog.setAction("LOGIN - User (name: "+ user.getName()
+                + ", email: " + user.getEmail()
+                + ", password: " + user.getPassword()
+                + ", role: " + user.getRole().name()
+                + ")");
+        auditRepository.save(auditLog);
 
         return Response.builder()
                 .status(200)

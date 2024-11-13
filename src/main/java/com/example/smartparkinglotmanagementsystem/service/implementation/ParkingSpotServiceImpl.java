@@ -2,10 +2,12 @@ package com.example.smartparkinglotmanagementsystem.service.implementation;
 
 import com.example.smartparkinglotmanagementsystem.dto.ParkingSpotDto;
 import com.example.smartparkinglotmanagementsystem.dto.Response;
+import com.example.smartparkinglotmanagementsystem.entity.AuditLog;
 import com.example.smartparkinglotmanagementsystem.entity.ParkingSpot;
 import com.example.smartparkinglotmanagementsystem.enums.SpotStatus;
 import com.example.smartparkinglotmanagementsystem.exception.NotFoundException;
 import com.example.smartparkinglotmanagementsystem.mapper.EntityDtoMapper;
+import com.example.smartparkinglotmanagementsystem.repository.AuditRepository;
 import com.example.smartparkinglotmanagementsystem.repository.ParkingSpotRepository;
 import com.example.smartparkinglotmanagementsystem.service.ParkingSpotService;
 import lombok.AllArgsConstructor;
@@ -23,6 +25,7 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
     private ParkingSpotRepository parkingSpotRepository;
     private EntityDtoMapper entityDtoMapper;
     private ParkingWebsocketServiceImpl parkingWebSocketService;
+    private final AuditRepository auditRepository;
 
 
     @Override
@@ -42,6 +45,8 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
         ParkingSpot savedParkingSpot = parkingSpotRepository.save(parkingSpot);
         log.info("parking spot " + savedParkingSpot.getSpotId() + " freed");
 
+        audit("UPDATE", parkingSpot);
+
         // web socket to notify all connected clients
         ParkingSpotDto dtoForNotify = entityDtoMapper.mapParkingSpotToDtoBasic(savedParkingSpot);
         dtoForNotify.setSpotStatus(SpotStatus.EMPTY);
@@ -60,6 +65,7 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
 
         ParkingSpot savedSpot = parkingSpotRepository.save(parkingSpot);
         log.info("parking spot added successfully");
+        audit("INSERT", parkingSpot);
 
         ParkingSpotDto dtoForNotify = entityDtoMapper.mapParkingSpotToDtoBasic(savedSpot);
         dtoForNotify.setSpotStatus(SpotStatus.EMPTY);
@@ -79,6 +85,8 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
         parkingSpotRepository.delete(parkingSpot);
         log.info("parking spot deleted successfully");
 
+        audit("DELETE", parkingSpot);
+
         ParkingSpotDto dtoForNotify = entityDtoMapper.mapParkingSpotToDtoBasic(parkingSpot);
         dtoForNotify.setSpotStatus(SpotStatus.REMOVED);
         parkingWebSocketService.sendOccupancyUpdate(dtoForNotify);
@@ -88,6 +96,16 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
                 .status(200)
                 .message("Parking spot " + parkingSpot.getSpotId() + " deleted successfully")
                 .build();
+    }
+
+    private void audit(String mode, ParkingSpot parkingSpot) {
+        AuditLog auditLog = new AuditLog();
+        auditLog.setAction(mode + " - ParkingSpot (spot id: "+ parkingSpot.getSpotId()
+                + ", size: " + parkingSpot.getSpotSize()
+                + ", isOccupied: " + false
+                + ", currentVehicle: " + null
+                + ")");
+        auditRepository.save(auditLog);
     }
 
 
