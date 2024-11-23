@@ -6,6 +6,7 @@ import com.example.smartparkinglotmanagementsystem.service.ParkingSpotService;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/parkingSpot")
 @AllArgsConstructor
+@SecurityRequirement(name = "Authorization")
 public class ParkingSpotController {
 
     private ParkingSpotService parkingSpotService;

@@ -6,6 +6,7 @@ import com.example.smartparkinglotmanagementsystem.service.ReportingService;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/reports")
 @AllArgsConstructor
+@SecurityRequirement(name = "Authorization")
 public class ReportingController {
 
     private final ReportingService reportingService;
