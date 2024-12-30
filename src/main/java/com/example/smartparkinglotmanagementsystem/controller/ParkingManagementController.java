@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,6 +38,7 @@ public class ParkingManagementController {
             }
     )
     @RateLimiter(name = "parkingSystem")
+    @Transactional
     public ResponseEntity<Response> viewRealtimeStatus(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue= "1000") int size){
@@ -60,6 +62,7 @@ public class ParkingManagementController {
             }
     )
     @RateLimiter(name = "parkingSystem")
+    @Transactional
     public ResponseEntity<Response> viewOccupancyRate(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue= "1000") int size){
