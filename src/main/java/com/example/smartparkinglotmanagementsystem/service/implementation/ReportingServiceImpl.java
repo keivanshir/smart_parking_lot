@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class ReportingServiceImpl implements ReportingService {
     private final RevenueRepository revenueRepository;
 
     @Override
+    @Transactional
     public Response generateReportOfAllParkedVehicles(Pageable pageable) {
         Page<Vehicle> vehiclePage = vehicleRepository.findAll(ReportingSpecification.parkedCars(), pageable);
 
@@ -59,6 +61,7 @@ public class ReportingServiceImpl implements ReportingService {
     }
 
     @Override
+    @Transactional
     public Response generateRevenueReport(Frequency frequency, Pageable pageable) {
         List<RevenueDto> revenueDtoList = new ArrayList<>();
 
