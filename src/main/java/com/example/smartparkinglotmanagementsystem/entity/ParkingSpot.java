@@ -31,7 +31,7 @@ public class ParkingSpot implements Serializable {
     @Column(name = "is_occupied")
     private Boolean isOccupied = false;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "vehicle_id")
     private Vehicle currentVehicle;
 
